@@ -22,6 +22,6 @@
 	<import resource="classpath:config/spring-context-mvc.xml" />
 	<import resource="classpath:config/spring-context-jedis.xml" />
 	<import resource="classpath:config/spring-context-bean.xml" />
-
+	<import resource="classpath:config/spring-context-mongo.xml" />
 
 </beans>

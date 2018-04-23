@@ -19,13 +19,13 @@
 
 	<properties>
 		<java-version>1.7</java-version>
-		<org.springframework-version>4.1.1.RELEASE</org.springframework-version>
+		<org.springframework-version>4.3.5.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.7.2</org.aspectj-version>
 		<org.slf4j-version>1.7.5</org.slf4j-version>
 		<main.basedir>${project.basedir}</main.basedir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<validator.version>5.1.1.Final</validator.version>
-		<jackson.version>2.2.3</jackson.version>
+		<jackson.version>2.9.5</jackson.version>
 		<dozer.version>5.5.1</dozer.version>
 		<shiro.version>1.2.3</shiro.version>
 		<guava.version>17.0</guava.version>
@@ -475,7 +475,21 @@
 			<artifactId>gson</artifactId>
 			<version>2.2.4</version>
 		</dependency>
-
+		
+		<!-- mongoDB -->
+		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-mongodb -->
+		<dependency>
+		    <groupId>org.springframework.data</groupId>
+		    <artifactId>spring-data-mongodb</artifactId>
+		    <version>1.10.7.RELEASE</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
+		<dependency>
+		    <groupId>org.mongodb</groupId>
+		    <artifactId>mongo-java-driver</artifactId>
+		    <version>3.6.3</version>
+		</dependency>
 	</dependencies>
 
 
