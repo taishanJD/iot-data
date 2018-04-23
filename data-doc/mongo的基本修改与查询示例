@@ -1,0 +1,119 @@
+db.student.update({_id:10},{$set:{age:21}})  #id为10的文档的age改为21，$set表示有这个键则修改,没有这个键则增加
+
+db.student.update({age:10},{$set:{sex:1}},true,true)   #第一个true表示查到年龄为10则修改, 查不到则插入,false表示为查到则修改,查不到什么也不做,不写则默认为false(相当于InsertOrUpdate)  #第二个true表示批量增加（所有年龄为10，修改性别为1）,false则不是批量增加，默认为false
+
+db.student.update({_id:3},{$set:{course:['math','computer']}})
+
+db.student.update({_id:1},{$addToSet:{course:'math'}})结果：math,computer
+
+db.student.update({_id:1},{$addToSet:{course:'english'}})结果：math,computer,english
+
+addToSet：目标数组存在新增加的项则不增加，不存在则增加（数组中有math，computer，再update math时不增加，而update english时，数组中没有english，则增加）
+
+db.student.update({"_id":3},{$addToSet:{course:{$each:["math","english","Chinese"]}}})  # 批量增加
+
+
+db.student.update({_id:10},{$inc:{age:1}})  #id为10的文档的age自动加1
+
+db.student.update({_id:10},{$unset：{age:x}})  #删除id为10的文档的age字段，x为任意数字
+
+db.student.update({_id:13},{$push:{score:[100,101]}})  #score数组中新增值100,101，如果score键不存在,则新增加这个键，必须为数组
+
+db.student.update({_id:13},{$pop:{score:x}})  #删除数组中的值，x为1删除最后一个,x为-1 删除最前的一个
+
+db.student.update({_id:3},{$pull:{course:"computer"}})  # 删除数组course中的computer值（可以为多个computer值）
+
+db.student.update({_id:3},{$pullAll:{course:["math","english"]}})  # 删除数组中多个不同的值
+
+db.student.update({_id:10},{$rename:{'age':'AGE'}})  #修改id为10的文档的age字段名
+
+-------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------我是分割线-------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+#数字比较
+	小于等于：$lte，
+	大于等于：$gte，
+	小于：$lt,
+	大于：$gt
+##查找所有年龄25至27岁之间的学生
+db.student2.find({"age":{$lte:27,$gte:25}},{"_id":0,"name":1,"age":1})  # _id=0表示不显示 id
+##查找所有年龄小于25 或者 大于27岁之间的学生
+db.student2.find({$or:[{"age":{$lt:25}},{"age":{$gt:27}}]},{"_id":0,"name":1,"age":1})  # _id=0表示不显示 id
+
+ 
+#不是，不等于：$ne
+##查找所有不是美国的学生:
+db.student.find({"Country":{$ne:"USA"}},{"_id":0,"name":1,"Country":1})  
+
+#在某个集合中：$in（或的关系）
+##查询所有国籍是美国或中国的学生
+db.student.find({"Country":{$in:["USA","China"]}},{"_id":0,"name":1,"Country":1})  
+##查询所有国籍为空的学生（没有国籍字段）
+db.student.find({"Country":{$in:[null]}},{"_id":0,"name":1})  
+
+#不在某个集合中：$nin
+##查询所有国籍既不是美国也不是中国的学生
+db.student2.find({"Country":{$nin:["USA","China"]}},{"_id":0,"name":1,"Country":1})  
+
+#在某个集合中：$all（且的关系）
+##查询所有国籍既是美国又是中国的学生
+db.student.find({"Country":{$all:["USA","China"]}},{"_id":0,"name":1,"Country":1}) 
+
+#或：$or （两个字段的或，不是一个字段的两个值的或）
+##查询所有数学成绩大于65或者英语成绩小于95的学生
+db.student.find({$or:[{"Math":{$gt:65}},{"English":{$lt:95}}]},{"_id":0,"name":1,"Math":1,"English":1})  
+##查询所有数学成绩大于65并且英语成绩小于95的学生
+db.student.find({"Math":{$gt:65},"English":{$lt:95}},{"_id":0,"name":1,"Math":1,"English":1})  
+
+
+
+#模糊查询：（也可加正则表达式）
+##查询所有名字包含To的学生
+db.student.find({"name":/To/},{"_id":0,"name":1})  
+
+
+查询所有学生名字不含字母a的学生
+db.student.find({"name":{$not:/a/}},{"_id":0,"name":1})  
+
+ 
+查询数组第二个值是java的学生信息
+db.student.find({"book.1":"java"},{"_id":0,"name":1})  
+
+
+查询数组长度是2的学生信息
+db.student.find({"book":{$size:2}},{"_id":0,"name":1})  
+
+
+查询名字含T的所有学生的书的数组的长度（游标）
+var student = db.student2.find({"name":/T/})  
+while(student.hasNext()){print(student.next().book.length)}  
+
+ 
+查询学生的book数组中从下标1开始起共2个即book[1],book[2]
+db.student2.find({"name":"Tom5"},{"_id":0,"name":1,"book":{$slice:[1,2]}})  
+
+ 
+查询学生的book数组中最后一个元素
+db.student2.find({"name":"Tom5"},{"_id":0,"name":1,"book":{$slice:-1}})  
+
+
+查询前五条数据
+db.student2.find({},{"_id":0,"name":1}).limit(5)  
+
+
+查询从第七条开始后三条数据即第7,8,9
+db.student2.find({},{"_id":0,"name":1}).limit(3).skip(6)  
+
+
+查询的结果按年龄正序排序
+db.student2.find({},{"_id":0,"name":1,"age":1}).sort({age:1})  
+
+
+查询的结果按年龄逆序排序
+db.student2.find({},{"_id":0,"name":1,"age":1}).sort({age:-1})  
+
+ 
+快照的使用
+db.student2.find({$query:{"name":"Tom5"},snapshot:true},{"_id":0,"name":1})  

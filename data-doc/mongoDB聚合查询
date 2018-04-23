@@ -1,0 +1,60 @@
+ 聚合指各种可以处理批量记录并返回计算结果的操作，MongoDB提供了丰富的聚合操作，MongoDB提供了进行聚合的三种方式：聚集管道（Aggregation）,Map-Reduce方法,和单一用途的聚合方法。
+一、单一用途的聚合方法:db.collection.count(), db.collection.group(), db.collection.distinct()
+1.db.collection.count(条件)  返回匹配查询结果的数量 例子：db.getCollection('teacher').count({"age":{$lt:30},"team":{$nin:[null]}})
+2.db.collection.distinct(字段名)  返回某个字段的非重复值列表，结果不能大于最大BSON大小（大小为4 MB） 例子：db.getCollection("teacher").distinct("age")
+3.db.collection.group({ key, reduce, initial，[keyf],[cond],[finalize] }) 根据某个字段对集合进行分组，然后通过聚合每一组中的所有文档，可以对聚合每一组中的所有文档进行处理，来产生最终的我们想要的结果文档。
+	（1）在2.2版本中，返回的数组可以包含最多20000个元素；即最多20000个独特的分组。
+        （2）聚集管道（Aggregation）,Map-Reduce方法都可以运行在分片集合，group()方法不能运行在分片集群中工作。 
+        （3）结果集必须符合最大BSON文档大小（大小为4 MB）。
+	（4）参数说明：
+		key：作为分组的key。（必选）
+		reduce：一个聚合函数操作文档的分组操作期间。这些函数可以返回一个sum或count。该函数接受两个参数：当前文档和这个群体聚集的结果文档。（必选）
+		initial：初始化聚合结果文档变量，为空时自动为每列提供初始变量。（必选）
+		keyf：可选。替代的key 字段。指定一个函数创建一个“key object”作为分组的key。使用keyf而是通过group by领域而不是现有的文档域键组。
+		cond：可选。过滤条件，根据条件过滤集合的文档。
+		finalize：可选。在db.collection.group()返回最终结果之前，每一组文档执行完后，多会触发此方法,此功能可以修改的结果文档或替换的结果文档作为一个整体，执行group()结果集必须符合最大BSON文档大小（大小为4 MB），finalize能对数据传到客户时，进行裁剪结果，可以提高很大的效率。
+	（5）例子：
+
+		数据：测试数据
+		①. #Select pnumber,sum(quantity) as total from orders,items group by pnumber
+		db.getCollection('orders').group({
+		    key : {'item.pnumber':1} , 
+		    initial : {"total":0},
+		    reduce : function Reduce(doc, out) 
+			{out.total+=doc.item.quantity}
+		})
+		
+		②.db.orders.group({  
+		     key: {date:1},  
+		     initial :{"total":0,"money":0},  
+		     reduce : function Reduce(doc, out) {  
+		     out.total+=doc.item.quantity;  
+			out.money+=doc.item.quantity*doc.item.price;  
+		      },  
+		     finalize : function Finalize(out) {  
+		       out.avg=out.money/out.total  
+		       return out;  
+		   }  
+		});
+二.聚集管道（Aggregation）:
+	Pipeline查询速度快于MapReduce，但是MapReduce的强大之处在于能够在多台Server上并行执行复杂的聚合逻辑。MongoDB不允许Pipeline的单个聚合操作占用过多的系统内存，如果一个聚合操作消耗20%以上的内存，那么MongoDB直接停止操作，并向客户端输出错误消息。
+	MapReduce 能够计算非常复杂的聚合逻辑，非常灵活，但是，MapReduce非常慢，不应该用于实时的数据分析中。MapReduce能够在多台Server上并行执行，每台Server只负责完成一部分wordload，最后将wordload发送到Master Server上合并，计算出最终的结果集，返回客户端。适合用做后台统计.
+	db.collection.aggregate()是基于数据处理的聚合管道，每个文档通过一个有多个阶段（stage）组成的管道，可以对每个阶段的管道进行分组、过滤等功能，然后经过一系列的处理，输出相应的结果。
+	db.collection.aggregate()可以多个管道，能方便的进行数据的处理。
+        db.collection.aggregate()使用了MongoDB内置的原生操作，聚合效率非常高,支持类似于SQL Group By操作的功能，而不再需要用户编写自定义的JavaScript例程。
+        每个阶段管道限制为100MB的内存。如果一个节点管道超过这个极限,MongoDB将产生一个错误。为了能够在处理大型数据集,可以设置allowDiskUse为true来在聚合管道节点把数据写入临时文件。这样就可以解决100MB的内存的限制。
+        db.collection.aggregate()可以作用在分片集合，但结果不能输在分片集合，MapReduce可以 作用在分片集合，结果也可以输在分片集合。
+    	db.collection.aggregate()方法可以返回一个指针（cursor），数据放在内存中，直接操作。跟Mongo shell 一样指针操作。
+        db.collection.aggregate()输出的结果只能保存在一个文档中，BSON Document大小限制为16M。可以通过返回指针解决，版本2.6中后面：DB.collect.aggregate()方法返回一个指针，可以返回任何结果集的大小。
+1.语法
+db.collection.aggregate(pipeline, options)；
+	--pipeline 类型是Array  语法： db.collection.aggregate( [ { <stage1> },{ <stage2> }, ... ] ) 
+	
+	【pipeline参数】
+		$group：语法：{ $group: { _id: <expression>, <field1>: { <accumulator1> : <expression1> }, ... } } //_id 分组依据的字段名 field1: 输出的某个字段名 
+		$project：可以对输入文档进行添加新字段或删除现有的字段，可以自定哪些字段显示与不显示。相当于sql中的select
+		$match：根据条件用于过滤数据，只输出符合条件的文档，如果放在pipeline前面，根据条件过滤数据，传输到下一个阶段管道，可以提高后续的数据处理效率。还可以放在out之前，对结果进行再一次过滤。
+		$redact：字段所处的document结构的级别.
+		$limit：用来限制MongoDB聚合管道返回的文档数
+		$sort :将输入文档排序后输出。
+

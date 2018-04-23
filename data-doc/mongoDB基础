@@ -1,0 +1,81 @@
+1.安装 参考https://blog.csdn.net/sullivan_jia/article/details/79847841
+
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5  
+echo "deb [ arch=amd64 ] http://repo.mongodb.com/apt/ubuntu trusty/mongodb-enterprise/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise.list  
+sudo apt-get update  
+sudo apt-get install -y mongodb-enterprise 
+sudo service mongod start 
+mongo #进入 mongo shell
+
+可视化工具：robomongo
+下载：https://download.robomongo.org/1.2.1/linux/robo3t-1.2.1-linux-x86_64-3e50a65.tar.gz
+解压：tar -xzf robo3t-1.2.1-linux-x86_64-3e50a65.tar.gz
+启动：./robo3t-1.2.1-linux-x86_64-3e50a65/bin/robo3t*
+
+
+2.语法
+ -MongoDB 将数据存储为一个文档，数据结构由键值(key=>value)对组成。MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。
+ -数据库及表名命名规范
+　　--不能是空字符串
+　　--不能含有‘ ’、(空格)、，、$、/、\、和\O(空字符)
+　　--应全部小写
+　　--最多64个字节
+　　--数据库名不能与现有系统保留库同名。如admin，config，local
+
+　-数据库相关 
+	show dbs:显示数据库列表 
+	show collections：显示当前数据库中的集合（类似关系数据库中的表table） 
+	show users：显示所有用户 
+	use yourDB：切换当前数据库至yourDB 
+	db.help() ：显示数据库操作命令 
+	db.yourCollection.help() ：显示集合操作命令，yourCollection是集合名
+ 	注意：MongoDB没有创建数据库的命令，如果你想创建一个“School”的数据库，先运行use School命令，之后做一些操作（如：创建聚集集合db.createCollection('teacher')）,这样就可以创建一个名叫“School”的数据库。
+	
+ -常用操作流程 （以School为例）
+	use School  #切换到School数据库。MongoDB 无需预创建School数据库，在使用时会自动创建
+	db.createCollection('teacher') 　　　　　　#创建一个聚集集合。MongoDB 其实在插入数据的时候，也会自动创建对应的集合，无需预定义集合
+	show collections 
+
+	#插入数据 （insert和save不同之处在于：在手动插入_id字段时，如果_id已经存在，insert不做操作，save做更新操作；如果不加_id字段，两者作用相同都是插入数据。）
+	db.student.insert({_id:1, sname: 'zhangsan', sage: 20}) 　　　　  #_id可不写，会自动生成一个唯一的_id来标识本条数据。
+	db.student.save({_id:1, sname: 'zhangsan', sage: 22}) 　　　　　　 #_id可不写，会自动生成一个唯一的_id来标识本条数据。
+	#插入多条数据
+	s = [{sname:'lisi',sage:20},{sname:'wangwu',sage:20},{sname:'chenliu',sage:20}]  #先定义数据
+	db.student.insert(s)  #再插入数据
+	
+	#查询数据  db.[documentName].find({条件},{键指定})
+	db.student.find() 　　 #查询所有记录。相当于：select * from student
+	db.student.findOne() 	#查看第一条数据
+	db.student.find({sname: 'lisi'})  　　　　#查询sname='lisi'的记录。相当于： select * from student where sname='lisi'
+	db.student.find({},{sname:1, sage:1})　　　　 #查询指定列sname、sage数据。相当于：select sname,sage from student。sname:1表示返回sname列，默认_id字段也是返回的，可以添加_id:0（意为不返回_id）写成{sname: 1, sage: 1,_id:0}，就不会返回默认的_id字段了
+	db.student.find({sname: 'zhangsan', sage: 22}) 　　　　#and 与条件查询。相当于：select * from student where sname = 'zhangsan' and sage = 22
+	db.student.find({$or: [{sage: 22}, {sage: 25}]}) 　　　　#or 条件查询。相当于：select * from student where sage = 22 or sage = 25
+	更多：
+	
+
+	#修改数据
+	db.youCollection.update(criteria, objNew, upsert, multi ) 
+		## criteria: update的查询条件，类似sql update查询内where后面的 
+		## objNew : update的对象和一些更新的操作符（如$set）等，也可以理解为sql update查询内set后面的。 
+		## upsert : 如果不存在update的记录，是否插入objNew，true为插入，默认是false，不插入。 
+		## multi: mongodb默认是false,只更新找到的第一条记录，如果这个参数为true,就把按条件查出来多条记录全部更新。默认false，只修改匹配到的第一条数据。 
+		## 其中criteria和objNew是必选参数，upsert和multi可选参数 
+	基本例子： db.student.update({sname: 'lisi'}, {$set: {sage: 30}}, false, true)　　　　 #相当于：update student set sage =30 where sname = 'lisi';
+	更多：
+
+
+	#删除数据
+	db.student.remove({sname: 'chenliu'}) 　　　　#相当于：delete from student where sname='chenliu'
+	db.student.drop()    #删除库中的集合
+	db.dropDatabase();	#删除数据库
+
+	#count
+	db.student.find().count();
+ 
+ -导入导出
+	-d 指定要导出的库 -c 指定要导出的库的集合 -o 数据导出后存放的路径 -cvs指定导出的cvs格式 -q过滤导出 --type<json|csv|tsv> --file导入数据路径
+	导出某张集合（表） ： mongoexport --host 127.0.0.1 --port 27017  -d xxlong_db -c student -o /home/xxlong/xxl.json
+	导入某张集合（表） ： mongoimport --host 127.0.0.1 --port 27017  -d xxlong_db -c student110 --file "/home/xxlong/xxlong.json" 
+	导出某个库（运行时备份）： mongodump --host 127.0.0.1:27017 -d xxlong_db -o /home/xxlong/ (/home/xxlong 目录下是数据库名（xxlong_db）的文件夹，里面是备份的数据)
+	导入某个库（运行时恢复）： mongorestore --host 127.0.0.1:27017 -d xxlong_db /home/xxlong/xxlong_db
+
