@@ -39,7 +39,7 @@
 
         <!--生成 Model.java文件 -->
         <javaModelGenerator targetPackage="com.quarkdata.data.model.dataobj"
-                            targetProject="../../iot-model/src/main/java">
+                            targetProject="../../data-model/src/main/java">
             <!-- enableSubPackages:是否让schema作为包的后缀 -->
             <property name="enableSubPackages" value="false" />
             <!-- 是否针对string类型的字段在set的时候进行trim调用 -->
@@ -62,6 +62,53 @@
 
         <!-- 待生成的数据库中的表名，生成一个表对应的Java和xml文件就需要配置这一段 -->
         <table tableName="sys_dict" domainObjectName="SysDict">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="dataset" domainObjectName="Dataset">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="dataset_schema" domainObjectName="DatasetSchema">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="datasource" domainObjectName="Datasource">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="project" domainObjectName="Project">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="project_comment" domainObjectName="ProjectComment">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="project_tag" domainObjectName="ProjectTag">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="project_tag_rel" domainObjectName="ProjectTagRel">
+        </table>
+        <table tableName="project_timeline" domainObjectName="ProjectTimeline">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="scheduler_job" domainObjectName="SchedulerJob">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="scheduler_notify" domainObjectName="SchedulerNotify">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="scheduler_task" domainObjectName="SchedulerTask">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="workflow" domainObjectName="Workflow">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="workflow_inst" domainObjectName="WorkflowInst">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="workflow_node" domainObjectName="WorkflowNode">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="workflow_node_inst" domainObjectName="WorkflowNodeInst">
+            <generatedKey column="id" sqlStatement="MySql" identity="true" />
+        </table>
+        <table tableName="workflow_node_rel" domainObjectName="WorkflowNodeRel">
             <generatedKey column="id" sqlStatement="MySql" identity="true" />
         </table>
 

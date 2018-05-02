@@ -1,4 +1,4 @@
-package com.quarkdata.data.util;
+package com.quarkdata.data.util.db;
 
 
 import org.apache.log4j.Logger;

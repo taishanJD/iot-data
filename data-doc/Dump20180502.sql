@@ -2,7 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `one_data` /*!40100 DEFAULT CHARACTER SET utf8 CO
 USE `one_data`;
 -- MySQL dump 10.13  Distrib 5.5.58, for debian-linux-gnu (x86_64)
 --
--- Host: 40.125.162.231    Database: one_data
+-- Host: 192.168.204.26    Database: one_data
 -- ------------------------------------------------------
 -- Server version	5.6.21
 
@@ -30,7 +30,7 @@ CREATE TABLE `dataset` (
   `project_id` bigint(20) NOT NULL COMMENT '项目id',
   `dataset_name` varchar(50) NOT NULL COMMENT '数据集名称',
   `table_name` varchar(100) NOT NULL COMMENT '对应数据源表名（mysql table、MongoDB collection等）',
-  `desc` longtext COMMENT '描述',
+  `description` longtext COMMENT '描述',
   `is_write` char(1) NOT NULL COMMENT '是否可写（0：否、1：是）',
   `is_sync` char(1) NOT NULL COMMENT '是否需要同步数据（0：否、1：是）',
   `is_float_to_int` char(1) NOT NULL COMMENT '是否浮点型转整型（0：否、1：是）',
@@ -98,7 +98,7 @@ CREATE TABLE `datasource` (
   `datasource_type` char(1) NOT NULL COMMENT '数据源类型（0：SQL、1：NoSQL、2：Hadoop、3：Files、4：Cloud）',
   `data_type` char(2) NOT NULL COMMENT '数据类型（0：MySQL、1：Oracle、2：PostgreSQL、3：MS SQL Server、4：HANA、5：MongoDB、6：Cassandra、7：ElasticSearch、8：Hive、9：Hbase、10：HDFS、11：HTTP、12：FTP、13：SFTP）',
   `conn_name` varchar(50) NOT NULL COMMENT '连接名称',
-  `host` varchar(20) NOT NULL COMMENT '服务器',
+  `host` varchar(200) NOT NULL COMMENT '服务器或集群配置',
   `port` int(10) NOT NULL COMMENT '端口',
   `db` varchar(20) NOT NULL COMMENT '数据库',
   `username` varchar(20) NOT NULL COMMENT '用户名',
@@ -138,6 +138,7 @@ CREATE TABLE `project` (
   `project_name` varchar(50) NOT NULL COMMENT '项目名称',
   `project_key` varchar(20) NOT NULL COMMENT '项目标识（用于在项目之间引用数据集，项目一旦创建，标识将不能更改）',
   `project_status` char(1) NOT NULL COMMENT '项目状态（0：沙箱、1：草稿、2：开发中、3：使用中、4：已归档）',
+  `project_info` varchar(255) NOT NULL COMMENT '项目简述：项目xxx由xxx于xxxx-xx-xx创建',
   `project_desc` longtext COMMENT '项目描述',
   `project_picture` blob COMMENT '项目图片',
   `is_del` char(1) NOT NULL COMMENT '是否已删除（0：否、1：是）',
@@ -280,6 +281,7 @@ CREATE TABLE `scheduler_job` (
   `job_biz_type` char(1) NOT NULL COMMENT '作业业务类型（0：工作流、1：脚本、2：其他）',
   `is_frozen` char(1) NOT NULL COMMENT '是否冻结（0：否、1：是）',
   `is_notify` char(1) NOT NULL COMMENT '是否通知（0：否、1：是）',
+  `is_publish` char(1) NOT NULL COMMENT '是否已发布（0：否、1：是）默认0',
   `interval_type` char(1) DEFAULT NULL COMMENT '调度作业周期类型（0：年、1：月、2：周、3：天、4：小时、5：分钟）',
   `interval_values` varchar(200) DEFAULT NULL COMMENT '调度周期值（年：每年几月几日 例：1-20,2-12,3-2 ；月：每月几日 例：1,8,15 ；周：每周几 例：1,3,5 ；天：每天几时几分 为null ；小时：每间隔几小时 例：2；分钟：每间隔几分钟 例：5）',
   `interval_hour` int(10) DEFAULT NULL COMMENT '具体时间：小时',
@@ -346,7 +348,7 @@ DROP TABLE IF EXISTS `scheduler_task`;
 CREATE TABLE `scheduler_task` (
   `id` bigint(20) NOT NULL COMMENT '主键自增',
   `scheduler_job_id` bigint(20) NOT NULL COMMENT '调度作业id',
-  `task_status` char(1) NOT NULL COMMENT '调度任务状态（0：待执行、1：已取消、2：执行中、3：执行成功、4：执行失败）',
+  `task_status` char(1) NOT NULL COMMENT '调度任务状态（0：待执行、1：已取消、2：执行中、3：已停止、4：执行成功、5：执行失败）',
   `start_time` datetime NOT NULL COMMENT '开始执行时间',
   `end_time` datetime DEFAULT NULL COMMENT '结束执行时间',
   `retry_times` int(11) NOT NULL DEFAULT '0' COMMENT '重试次数（默认最多重试3次）',
@@ -556,4 +558,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-25 13:51:40
+-- Dump completed on 2018-05-02 18:39:52

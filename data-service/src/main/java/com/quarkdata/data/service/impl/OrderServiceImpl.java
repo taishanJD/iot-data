@@ -1,17 +1,25 @@
 package com.quarkdata.data.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
+import com.quarkdata.data.dal.dao.DatasetMapper;
+import com.quarkdata.data.dal.dao.DatasourceMapper;
+import com.quarkdata.data.model.common.ResultCode;
+import com.quarkdata.data.model.dataobj.Dataset;
+import com.quarkdata.data.model.dataobj.Datasource;
+import com.quarkdata.data.util.db.DB2MongoUtil;
+import com.quarkdata.data.util.ResultUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.mongodb.WriteResult;
 import com.quarkdata.data.dal.mongoRepository.OrderRepository;
 import com.quarkdata.data.model.mongo.Order;
 import com.quarkdata.data.service.OrderService;
@@ -26,6 +34,12 @@ public class OrderServiceImpl implements OrderService {
 	
 	@Autowired
 	private MongoOperations mongoOperations; //方法2
+
+	@Autowired
+	private DatasetMapper datasetMapper;
+
+	@Autowired
+	private DatasourceMapper datasourceMapper;
 	
 	@Override
 	public List<Order> queryAll() throws Exception {
@@ -99,6 +113,46 @@ public class OrderServiceImpl implements OrderService {
 //		return orderRepository.count();
 		
 		return mongoOperations.getCollection("orders").count();
+	}
+
+	@Override
+	public void update(String id,Order order) {
+//		Order order1 = orderRepository.findById(id);
+////		order1.setAdd(order.getAdd());
+//		order1.setAdd("123434ADD");
+////		order1.setDate(order.getDate());
+////		order1.setItem(order.getItem());
+////		order1.setName(order.getName());
+////		order1.setNumber(order.getNumber());
+//		orderRepository.save(order1);
+		
+		//根据条件查询出来后 再去修改 
+		Criteria criteria = Criteria.where("id").is(id);  
+		Query query = new Query(criteria); 
+		Update update = Update.update("add","1211ASDF").set("cname", "xiaoli");  
+		mongoOperations.findAndModify(query, update, Order.class);//查询出来后修改
+	}
+
+	@Override
+	public Order findById(String id) {
+		return orderRepository.findById(id);
+	}
+
+	@Override
+	public WriteResult deleteByAdd(String add) {
+//		 return orderRepository.deleteQuery();
+		Criteria criteria = Criteria.where("add").is(add);//add等于
+		Query query2 = new Query(criteria);  
+		return mongoOperations.remove(query2, Order.class);
+	}
+
+	@Override
+	public ResultCode<?> testMysql2Mongo(Long dataSetId, int selectType, int selectValue, String filter) {
+		Dataset dataset = datasetMapper.selectByPrimaryKey(dataSetId);
+		Long dataSourceId = dataset.getDatasourceId();
+		Datasource datasource = datasourceMapper.selectByPrimaryKey(dataSourceId);
+		List<Map<String,Object>> list = DB2MongoUtil.mysql2Mongo(dataset,datasource,1,20,"test");
+		return ResultUtil.success(list);
 	}
 
 }
