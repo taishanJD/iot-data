@@ -4,6 +4,7 @@ package com.quarkdata.data.util.db;
 import com.quarkdata.data.model.dataobj.Dataset;
 import com.quarkdata.data.model.dataobj.Datasource;
 import com.quarkdata.data.util.PropertiesUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -18,6 +19,8 @@ import java.util.Map;
  */
 public class DB2MongoUtil {
 
+    private static Logger logger = Logger.getLogger(DB2MongoUtil.class);
+
     @Autowired
 	private MongoOperations mongoOperations; //方法2
 
@@ -25,12 +28,14 @@ public class DB2MongoUtil {
     public static Map<String, String> props = PropertiesUtils.prop;
     public static void main(String[] args) {
 
-        String mongodb = props.get("mongo.dbname");
-        System.out.print(mongodb);
+//        String mongodb = props.get("mongo.dbname");
+//        System.out.print(mongodb);
+
+
     }
 
 
-    public static List<Map<String,Object>> mysql2Mongo(Dataset dataset, Datasource datasource, int selectType, int selectValue, String filter){
+    public static List<Map<String,Object>> mysql2Mongo(Dataset dataset, Datasource datasource, int selectType, int selectValue, String filter, String mongoDBName,String mongoColName){
         String localhost = datasource.getHost();
         int port = datasource.getPort();
         String dbName = datasource.getDb();
@@ -54,32 +59,35 @@ public class DB2MongoUtil {
                 sql.append(" limit ");
                 sql.append(selectValue);
                 break;
-            case 2 : //随机n条记录 todo
+            case 2 : //todo 随机n条记录
                 break;
-            case 3 : //随机百分比 todo
+            case 3 : //todo 随机百分比
                 break;
         }
 
 //        String sql = "SELECT * FROM product WHERE id IN(SELECT id from product where tenant_id = ?)";
 
-        List<Map<String,Object>> reslist = new ArrayList<>(); //结果集
+        List<Map<String,Object>> resList = new ArrayList<>(); //结果集
 
 //        List<Object> list = new ArrayList<Object>();//参数集合
 //        list.add(1);
 
         try {
-            reslist = db.executeQuery(sql.toString(),null);
-            for(Map<String,Object> ac:reslist){
-                System.out.println(ac);
-            }
+            resList = db.executeQuery(sql.toString(),null);
+//            for(Map<String,Object> ac:resList){
+//                System.out.println(ac);
+//            }
 
+            MongoUtils mongoUtils = MongoUtils.getInstance();
+            mongoUtils.insertData(mongoDBName,mongoColName,resList);
+            logger.info("MySQL::["+sql.toString()+"] =====>>> Mongo::[dbName == "+mongoDBName+", collection == "+mongoColName+"]");
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             db.closeDB();
         }
-        return reslist;
+        return resList;
     }
 
     /**

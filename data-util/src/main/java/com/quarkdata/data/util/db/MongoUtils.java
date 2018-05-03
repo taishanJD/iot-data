@@ -1,17 +1,19 @@
 package com.quarkdata.data.util.db;
 
 import com.mongodb.*;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
+import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 import com.quarkdata.data.util.PropertiesUtils;
+import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +22,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-@Service
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+
 public class MongoUtils {
 
+    private static Logger logger = Logger.getLogger(MongoUtils.class);
     private static MongoUtils mongoUtils ;
     public static Map<String, String> props = PropertiesUtils.prop;
+
+    @Autowired
+    private MongoOperations mongoOperations;
+
 //    private String address;
 //    static {
 //        String address = props.get("mongo.host");
@@ -74,24 +83,26 @@ public class MongoUtils {
     MongoCollection<Document> mongoCol ;
 
     private void getMongoCon() {
-
+        logger.info("开始连接mongodb");
         String address = props.get("mongo.host");
-        Integer port = Integer.getInteger(props.get("mongo.port"));
+        Integer port = Integer.parseInt(props.get("mongo.port"));
 
-//        MongoClientOptions.Builder options = new MongoClientOptions.Builder(); // mongoDB配置
-//        options.connectionsPerHost(props.get("mongo.options.connections-per-host"));
-//        options.connectTimeout(connectTimeout);
-//        options.maxWaitTime(maxWaitTime);
-//        options.socketTimeout(socketTimeout);
-//        options.threadsAllowedToBlockForConnectionMultiplier(multiplier);
-//        options.writeConcern(WriteConcern.SAFE);
+        MongoClientOptions.Builder options = new MongoClientOptions.Builder(); // mongoDB配置
+        options.connectionsPerHost(Integer.parseInt(props.get("mongo.options.connections-per-host")));
+        options.connectTimeout(Integer.parseInt(props.get("mongo.options.connect-timeout")));
+        options.maxWaitTime(Integer.parseInt(props.get("mongo.options.max-wait-time")));
+        options.socketTimeout(Integer.parseInt(props.get("mongo.options.socket-timeout")));
+        options.threadsAllowedToBlockForConnectionMultiplier(Integer.parseInt(props.get("mongo.options.threads-allowed-to-block-for-connection-multiplier")));
+        options.writeConcern(WriteConcern.SAFE);
 
         // 分布式mongo服务器 使用方式
 //        List<ServerAddress> listHost = Arrays.asList(new ServerAddress("localhost", 27017),new ServerAddress("localhost", 27018));
 //        mongoClient = new MongoClient(listHost,options.build());
+//        logger.info("获取mongodb连接成功！url == "+mongoClient.getAllAddress());
 
         ServerAddress serverAddress = new ServerAddress(address,port); // 单节点mongoDB服务器
-//        mongoClient = new MongoClient(serverAddress,options.build());
+        mongoClient = new MongoClient(serverAddress,options.build());
+        logger.info("获取mongodb连接成功！url == "+mongoClient.getAddress());
 //        mongoDatabase = mongoClient.getDatabase(dbName);
     }
 
@@ -170,6 +181,28 @@ public class MongoUtils {
     }
 
     /**
+     * 插入数据
+     * @param dbName 指定数据库名
+     * @param collectionName 指定collection名
+     * @param datas 待插入的数据
+     * @return
+     */
+    public void insertData(String dbName,String collectionName,List<Map<String,Object>> datas){
+
+        List<Document> list = new ArrayList<>();
+
+        //使用工具类，获取到指定数据库的MongoCollection对象
+        MongoCollection mongoCollection = getCollection(dbName,collectionName);
+
+        for (Map<String,Object> data:datas
+             ) {
+            Document document = new Document(data);
+            list.add(document);
+        }
+        mongoCollection.insertMany(list);
+    }
+
+    /**
      * 删除一个数据库
      */
     public void dropDB(String dbName) {
@@ -205,10 +238,57 @@ public class MongoUtils {
         return coll.find(filter).iterator();
     }
 
-    /** 分页查询 */
+    /** 分页查询,单一条件 */
     public MongoCursor<Document> findByPage(MongoCollection<Document> coll, Bson filter, int pageNo, int pageSize) {
         Bson orderBy = new BasicDBObject("_id", 1);
         return coll.find(filter).sort(orderBy).skip((pageNo - 1) * pageSize).limit(pageSize).iterator();
+    }
+
+    /**
+     * 分页查询,多条件
+     */
+    public MongoCursor<Document> aggregateByPage(MongoCollection<Document> coll, List<Bson> filters, int pageNo, int pageSize) {
+//        Bson orderBy = new BasicDBObject("_id", 1);
+//        Bson sort = new BasicDBObject("$sort",orderBy);
+//        Bson skip = new BasicDBObject("$skip",pageNo);
+//        Bson limit = new BasicDBObject("$limit",pageSize);
+
+//        filters.add(sort);
+//        filters.add(skip);
+//        filters.add(limit);
+
+//        FindIterable<Document> iterable = (FindIterable<Document>) coll.aggregate(filters);
+//        return coll.find(filter).sort(orderBy).skip((pageNo - 1) * pageSize).limit(pageSize).iterator();
+        //match
+//        Bson[] array = {
+//                new BasicDBObject("age", new BasicDBObject("$lt",30)),
+//                new BasicDBObject("firstName", "/J/")
+//        };
+
+        Pattern pattern = Pattern.compile("^J", CASE_INSENSITIVE);
+        BasicDBObject cond = new BasicDBObject();
+        cond.put("age", new BasicDBObject("$lt",30));
+        cond.put("firstName", pattern);
+        Bson match = new BasicDBObject("$match", cond);
+
+        //group
+//        DBObject groupFields = new BasicDBObject( "_id", "$lastEvent");
+//        groupFields.put("count", new BasicDBObject( "$sum", 1));
+//        DBObject group = new BasicDBObject("$group", groupFields);
+
+        //sort
+        Bson sort = new BasicDBObject("$sort", new BasicDBObject("_id", 1));
+        //skip
+        Bson skip = new BasicDBObject("$skip", pageNo);
+        //limit
+        Bson limit = new BasicDBObject("$limit", pageSize);
+
+        filters.add(match);
+        filters.add(sort);
+        filters.add(skip);
+        filters.add(limit);
+
+        return coll.aggregate(filters).iterator();
     }
 
     /**
@@ -233,7 +313,7 @@ public class MongoUtils {
     }
 
     /**
-     * FIXME
+     *
      *
      * @param coll
      * @param id
@@ -269,7 +349,36 @@ public class MongoUtils {
 
      public static void main(String[] args) {
         MongoUtils mongoUtils = MongoUtils.getInstance();
-        System.out.print(mongoUtils.getAllDBNames());
+//        MongoIterable<String> cols = mongoUtils.getAllDBNames();
+//        for (String s : cols) {
+////            _list.add(s);
+//            System.out.println(s);
+//        }
+
+//        List<String> collections = mongoUtils.getAllCollections("School");
+//        for (String s : collections) {
+////            _list.add(s);
+//            System.out.println(s);
+//        }
+//         Bson filter1 = Filters.lt("age",30); //过滤age小于30的记录
+//         Bson filter2 = Filters.regex("firstName","/^J/");
+         List<Bson> filters = new ArrayList<>();
+//         filters.add(filter1);
+//         filters.add(filter2);
+//         MongoCursor<Document> cursor = mongoUtils.findByPage(mongoUtils.getCollection("School","user"),filters,1,10);
+//         while (cursor.hasNext()){
+//             Document object = cursor.next();
+//             logger.info(object.toJson());
+//             //do something.
+//         }
+
+         MongoCursor<Document> cursor = mongoUtils.aggregateByPage(mongoUtils.getCollection("School","user"),filters,1,10);
+         while (cursor.hasNext()){
+             Document object = cursor.next();
+             logger.info(object.toJson());
+             //do something.
+         }
+
      }
 
 }

@@ -151,7 +151,8 @@ public class OrderServiceImpl implements OrderService {
 		Dataset dataset = datasetMapper.selectByPrimaryKey(dataSetId);
 		Long dataSourceId = dataset.getDatasourceId();
 		Datasource datasource = datasourceMapper.selectByPrimaryKey(dataSourceId);
-		List<Map<String,Object>> list = DB2MongoUtil.mysql2Mongo(dataset,datasource,1,20,"test");
+		// todo mongo数据名和collection名称生成方法
+		List<Map<String,Object>> list = DB2MongoUtil.mysql2Mongo(dataset,datasource,1,5,"test","School","newone");
 		return ResultUtil.success(list);
 	}
 

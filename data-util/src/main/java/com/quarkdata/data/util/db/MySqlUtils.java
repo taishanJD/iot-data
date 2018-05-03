@@ -53,7 +53,7 @@ public class MySqlUtils {
     private void registeredDriver() {
         try {
             Class.forName(DRIVER);
-            logger.info("注册驱动成功！");
+            logger.info("注册mysql驱动成功！");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
