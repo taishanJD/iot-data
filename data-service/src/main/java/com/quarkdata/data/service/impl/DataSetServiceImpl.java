@@ -148,11 +148,13 @@ public class DataSetServiceImpl implements DataSetService {
                                     //sample_type字段：采样方式（0：前n条记录、1：随机n条记录（按个数）、2：随机n条记录（按比例））默认0
                                     //sample_type_value字段：采样方式对应值（采样个数、采样比例）默认采样个数10000
                                     //is_sample_filter字段：是否采样过滤（0：否、1：是）默认0
+                                    datasetMapper.insertSelective(dataset);
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             } finally {
                                 mySqlUtils.closeDB();
+                                return ResultUtil.success();
                             }
                         } else {
                             // 跨mysql服务器复制表结构

@@ -3,7 +3,6 @@ package com.quarkdata.data.web.api.controller.api;
 import com.quarkdata.data.model.common.Messages;
 import com.quarkdata.data.model.common.ResultCode;
 import com.quarkdata.data.service.DataSetService;
-import com.quarkdata.data.service.impl.ProjectServiceImpl;
 import com.quarkdata.data.util.ResultUtil;
 import com.quarkdata.data.web.api.controller.RouteKey;
 import org.apache.log4j.Logger;
@@ -36,6 +35,28 @@ public class DataSetController {
         ResultCode resultCode;
         try {
             resultCode = dataSetService.addDataSet(projectId, dataSourceId, dataSetName, tableName, isFloatToInt,createUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("创建data_set失败",e);
+            resultCode = ResultUtil.error(Messages.ADD_DATASET_FAILED_CODE,Messages.ADD_DATASET_FAILED_MSG);
+        }
+        return resultCode;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/add_in_workflow", method = RequestMethod.POST)
+    public ResultCode addDataSetInWorkflow(@RequestParam(value = "projectId") Long projectId,
+                                 @RequestParam(value = "dataSourceId") Long dataSourceId,
+                                           @RequestParam(value = "workFlowId") Long workFlowId,
+                                           @RequestParam(value = "inputDataSetId") Long inputDataSetId,
+                                 @RequestParam(value = "dataSetName") String dataSetName) {
+//        Long createUser = UserInfoUtil.getUserInfoVO().getUser().getId();
+//        Long tenantId = 1l;
+        Long createUser = 1l;
+        ResultCode resultCode;
+        try {
+            resultCode = dataSetService.addDataSetInWorkFlow(projectId, dataSourceId,workFlowId,inputDataSetId,dataSetName,createUser);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("创建data_set失败",e);
