@@ -70,6 +70,37 @@ public class Messages {
     public static final Integer JWT_ERRCODE_TOKEN_INVALID_CODE = 71003;
     public static final String JWT_ERRCODE_TOKEN_INVALID_MSG = "token无效";
 
+    public static final Integer API_ADD_PROJECT_CODE = 20001;
+    public static final String API_ADD_PROJECT_MSG = "创建项目失败";
 
+    public static final Integer PROJECT_NAME_REPEAT_CODE = 20002;
+    public static final String PROJECT_NAME_REPEAT_MSG = "项目名称重复";
 
+    public static final Integer PROJECT_KEY_REPEAT_CODE = 20003;
+    public static final String PROJECT_KEY_REPEAT_MSG = "项目标识重复";
+
+    public static final Integer UPDATE_PROJECT_CODE = 20004;
+    public static final String UPDATE_PROJECT_MSG = "编辑项目失败";
+
+    public static final Integer ADD_TAGS_CODE = 20005;
+    public static final String ADD_TAGS_MSG = "添加标签失败";
+
+    public static final Integer GET_PROJECT_DETAIL_CODE = 20006;
+    public static final String GET_PROJECT_DETAIL_MSG = "获取项目详情失败";
+
+    public static final Integer GET_PROJECT_LIST_CODE = 20007;
+    public static final String GET_PROJECT_LIST_MSG = "获取项目列表失败";
+
+    public static final Integer ADD_COMMENT_CODE = 20008;
+    public static final String ADD_COMMENT_MSG = "添加评论失败";
+
+    public static final Integer GET_COMMENT_LIST_CODE = 20009;
+    public static final String GET_COMMENT_LIST_MSG = "获取评论列表失败";
+
+    public static final Integer GET_TIMELINE_LIST_CODE = 20010;
+    public static final String GET_TIMELINE_LIST_MSG = "获取时间轴列表失败";
+
+    // data_set相关以3开头，不要抢不要抢
+    public static final Integer ADD_DATASET_FAILED_CODE = 30001;
+    public static final String ADD_DATASET_FAILED_MSG = "添加数据集失败";
 }

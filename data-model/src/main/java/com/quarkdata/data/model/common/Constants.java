@@ -58,4 +58,10 @@ public class Constants {
 		TRIGGER_CONDITION_OPERATOR_MAP.put((byte) 4, "<=");
 		TRIGGER_CONDITION_OPERATOR_MAP.put((byte) 5, "<>");
 	}
+	
+	// job责任人类型
+	public static final String JOB_RESPONSIBLE_TYPE_ALL ="0";// 全部
+	public static final String JOB_RESPONSIBLE_TYPE_MY ="1";// 我的
+
+	public static final String TABLE_NAME_DELIMITER = "_"; // 新建数据库表名分隔符
 }

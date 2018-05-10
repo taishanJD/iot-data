@@ -2,6 +2,8 @@ package com.quarkdata.data.service;
 
 import com.quarkdata.data.model.common.ResultCode;
 
+import java.sql.SQLException;
+
 public interface DataSetService {
 
     /**
@@ -25,5 +27,5 @@ public interface DataSetService {
      * @param createUser  创建人id
      * @return
      */
-    ResultCode addDataSetInWorkFlow(Long projectId, Long dataSourceId, Long workFlowId, String dataSetName ,Long createUser);
+    ResultCode addDataSetInWorkFlow(Long projectId, Long dataSourceId, Long workFlowId, Long inputDataSetId, String dataSetName ,Long createUser);
 }

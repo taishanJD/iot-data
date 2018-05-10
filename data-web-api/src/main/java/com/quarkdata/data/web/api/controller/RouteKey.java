@@ -50,5 +50,10 @@ public class RouteKey {
     public static final String USER = "/user";
 
     public static final String TENANT = "/tenant";
+    public static final String PROJECT = "/project";
+
+    public static final String DATASET = "/data_set";
+
+
 }
 
