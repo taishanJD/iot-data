@@ -17,6 +17,7 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="create_user" jdbcType="BIGINT" property="createUser" />
     <result column="update_user" jdbcType="BIGINT" property="updateUser" />
+    <result column="workflow_id" jdbcType="BIGINT" property="workflowId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.quarkdata.data.model.dataobj.Dataset">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -82,7 +83,7 @@
   <sql id="Base_Column_List">
     id, datasource_id, project_id, dataset_name, table_name, is_write, is_sync, is_float_to_int, 
     sample_type, sample_type_value, is_sample_filter, create_time, update_time, create_user, 
-    update_user
+    update_user, workflow_id
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -146,14 +147,14 @@
       table_name, is_write, is_sync, 
       is_float_to_int, sample_type, sample_type_value, 
       is_sample_filter, create_time, update_time, 
-      create_user, update_user, description
-      )
+      create_user, update_user, workflow_id, 
+      description)
     values (#{datasourceId,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{datasetName,jdbcType=VARCHAR}, 
       #{tableName,jdbcType=VARCHAR}, #{isWrite,jdbcType=CHAR}, #{isSync,jdbcType=CHAR}, 
       #{isFloatToInt,jdbcType=CHAR}, #{sampleType,jdbcType=CHAR}, #{sampleTypeValue,jdbcType=INTEGER}, 
       #{isSampleFilter,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{createUser,jdbcType=BIGINT}, #{updateUser,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}
-      )
+      #{createUser,jdbcType=BIGINT}, #{updateUser,jdbcType=BIGINT}, #{workflowId,jdbcType=BIGINT}, 
+      #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.quarkdata.data.model.dataobj.Dataset">
     <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
@@ -203,6 +204,9 @@
       <if test="updateUser != null">
         update_user,
       </if>
+      <if test="workflowId != null">
+        workflow_id,
+      </if>
       <if test="description != null">
         description,
       </if>
@@ -249,6 +253,9 @@
       </if>
       <if test="updateUser != null">
         #{updateUser,jdbcType=BIGINT},
+      </if>
+      <if test="workflowId != null">
+        #{workflowId,jdbcType=BIGINT},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -309,6 +316,9 @@
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=BIGINT},
       </if>
+      <if test="record.workflowId != null">
+        workflow_id = #{record.workflowId,jdbcType=BIGINT},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -334,6 +344,7 @@
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       create_user = #{record.createUser,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=BIGINT},
+      workflow_id = #{record.workflowId,jdbcType=BIGINT},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -355,7 +366,8 @@
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       create_user = #{record.createUser,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=BIGINT}
+      update_user = #{record.updateUser,jdbcType=BIGINT},
+      workflow_id = #{record.workflowId,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -405,6 +417,9 @@
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=BIGINT},
       </if>
+      <if test="workflowId != null">
+        workflow_id = #{workflowId,jdbcType=BIGINT},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -427,6 +442,7 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       create_user = #{createUser,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=BIGINT},
+      workflow_id = #{workflowId,jdbcType=BIGINT},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -445,7 +461,8 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       create_user = #{createUser,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=BIGINT}
+      update_user = #{updateUser,jdbcType=BIGINT},
+      workflow_id = #{workflowId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <select id="selectForUpdate" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">

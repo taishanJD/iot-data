@@ -1097,6 +1097,66 @@ public class DatasetExample implements Serializable {
             addCriterion("update_user not between", value1, value2, "updateUser");
             return (Criteria) this;
         }
+
+        public Criteria andWorkflowIdIsNull() {
+            addCriterion("workflow_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdIsNotNull() {
+            addCriterion("workflow_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdEqualTo(Long value) {
+            addCriterion("workflow_id =", value, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdNotEqualTo(Long value) {
+            addCriterion("workflow_id <>", value, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdGreaterThan(Long value) {
+            addCriterion("workflow_id >", value, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("workflow_id >=", value, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdLessThan(Long value) {
+            addCriterion("workflow_id <", value, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdLessThanOrEqualTo(Long value) {
+            addCriterion("workflow_id <=", value, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdIn(List<Long> values) {
+            addCriterion("workflow_id in", values, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdNotIn(List<Long> values) {
+            addCriterion("workflow_id not in", values, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdBetween(Long value1, Long value2) {
+            addCriterion("workflow_id between", value1, value2, "workflowId");
+            return (Criteria) this;
+        }
+
+        public Criteria andWorkflowIdNotBetween(Long value1, Long value2) {
+            addCriterion("workflow_id not between", value1, value2, "workflowId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria implements Serializable {
